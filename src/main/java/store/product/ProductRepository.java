@@ -8,4 +8,6 @@ public interface ProductRepository extends CrudRepository<ProductModel, String> 
 
     List<ProductModel> findAll();
 
+    List<ProductModel> findByNameContainingIgnoreCase(String name);
+
 }

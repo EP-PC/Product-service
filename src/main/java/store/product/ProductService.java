@@ -36,6 +36,12 @@ public class ProductService {
             .toList();
     }
 
+    public List<Product> findByName(String name) {
+        return productRepository.findByNameContainingIgnoreCase(name).stream()
+            .map(ProductModel::to)
+            .toList();
+    }
+
     public Product findById(String id) {
         return productRepository.findById(id)
             .map(ProductModel::to)

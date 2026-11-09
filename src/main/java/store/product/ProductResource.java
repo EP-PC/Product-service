@@ -6,6 +6,8 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -29,6 +31,13 @@ public class ProductResource implements ProductController {
     @Override
     public ResponseEntity<List<ProductOut>> findAll() {
         return ResponseEntity.ok(ProductParser.to(productService.findAll()));
+    }
+
+    // Busca por nome: fora do contrato (o Order nao precisa dela).
+    // O Spring escolhe este metodo quando ha ?name= e o findAll() quando nao ha.
+    @GetMapping(value = "/products", params = "name")
+    public ResponseEntity<List<ProductOut>> findByName(@RequestParam("name") String name) {
+        return ResponseEntity.ok(ProductParser.to(productService.findByName(name)));
     }
 
     @Override
