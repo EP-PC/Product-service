@@ -18,8 +18,13 @@ public class ProductResource implements ProductController {
     @Autowired
     private ProductService productService;
 
+    // regras da Fase 2 (header id-role do Gateway); ver ProductAuthorization
+    @Autowired
+    private ProductAuthorization authorization;
+
     @Override
     public ResponseEntity<ProductOut> create(ProductIn in) {
+        authorization.requireAdmin();        // antes da validacao: USER com body invalido -> 403
         Product created = productService.create(ProductParser.to(in));
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
             .path("/{id}")
@@ -51,6 +56,7 @@ public class ProductResource implements ProductController {
 
     @Override
     public ResponseEntity<Void> delete(String id) {
+        authorization.requireAdmin();
         productService.delete(id);
         return ResponseEntity.noContent().build();
     }
