@@ -1,0 +1,74 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: product
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: product
+  template:
+    metadata:
+      labels:
+        app: product
+    spec:
+      containers:
+          - name: product
+            image: pedrohmm1/product:f559294
+            imagePullPolicy: Always
+            ports:
+              - containerPort: 8080
+            resources:
+              requests:
+                memory: "256Mi"
+                cpu: "250m"
+              limits:
+                memory: "512Mi"
+                cpu: "500m"
+            env:
+
+              - name: DATABASE_HOST
+                valueFrom:
+                  configMapKeyRef:
+                    name: postgres-configmap
+                    key: POSTGRES_HOST
+
+              - name: DATABASE_DB
+                valueFrom:
+                  configMapKeyRef:
+                    name: postgres-configmap
+                    key: POSTGRES_DB
+
+              - name: DATABASE_PORT
+                value: "5432"
+
+              - name: DATABASE_USERNAME
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-secrets
+                    key: POSTGRES_USER
+
+              - name: DATABASE_PASSWORD
+                valueFrom:
+                  secretKeyRef:
+                    name: postgres-secrets
+                    key: POSTGRES_PASSWORD
+
+              # heap de ate 50% do limite (256 MB de 512Mi); sobra para metaspace/threads
+              - name: JAVA_TOOL_OPTIONS
+                value: "-XX:MaxRAMPercentage=50"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: product
+spec:
+  selector:
+    app: product
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+  type: ClusterIP
