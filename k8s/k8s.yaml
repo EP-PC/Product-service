@@ -18,6 +18,15 @@ spec:
             imagePullPolicy: Always
             ports:
               - containerPort: 8080
+            # sem probe, o pod novo era dado como pronto assim que o container subia e o antigo
+            # caia: 503 nos ~40 s de boot do Spring. A 8080 so abre no fim da inicializacao
+            # (depois do Flyway/contexto), entao o check TCP basta (sem actuator).
+            readinessProbe:
+              tcpSocket:
+                port: 8080
+              initialDelaySeconds: 20
+              periodSeconds: 5
+              failureThreshold: 6
             resources:
               requests:
                 memory: "256Mi"
